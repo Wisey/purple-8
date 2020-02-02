@@ -3,6 +3,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Welcome extends MY_Controller {
 
+	public function __construct(){
+		parent::__construct();
+		$this->load->model('file_model');
+	}
+
 	/**
 	 * Index Page for this controller.
 	 *
@@ -19,7 +24,11 @@ class Welcome extends MY_Controller {
 	 * @see https://codeigniter.com/user_guide/general/urls.html
 	 */
 	public function index(){
-		$this->data['page'] = 'welcome_message';
+		$this->data['width'] = 25;
+		$this->data['height'] = 6;
+		$input_file = APPPATH."../demo/input.txt";
+		$this->data['chars'] = $this->file_model->load($input_file);
+		$this->data['page'] = 'day/8';
 		$this->load->view('inc/template', $this->data);
 	}
 }

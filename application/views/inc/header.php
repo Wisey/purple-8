@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Boilerplate</title>
+	<title>Purple WiFi - Day 8</title>
 
 	<!-- CSS -->
 		<link rel="stylesheet" type="text/css" href="<?=base_url('css/normalise.css');?>">
