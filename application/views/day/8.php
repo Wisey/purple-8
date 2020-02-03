@@ -19,6 +19,29 @@
 	$layers = [];
 ?>
 
+<style>
+	body {
+		background-color: #666666;
+		color: #FFFFFF;
+	}
+
+	td.black {
+		background-color: #000000;
+	}
+
+	td.transparent {
+		background-color: #666666;
+	}
+
+	td.white {
+		background-color: #FFFFFF;
+	}
+
+	tbody {
+		border: none !important;
+	}
+</style>
+
 <?php if(empty($chars)): ?>
 	<!-- Error message if script could not run -->
 	<div data-closable class="callout alert-callout-border alert radius">
@@ -47,6 +70,8 @@
 						$layer = new Layer();
 						$layers[] = $layer;
 					}
+
+					$layer->image .= $char;
 
 					/*
 					//Image visual - cut out for processing speed
@@ -79,8 +104,59 @@
 					}
 				}
 
-				echo "Day 8 Answer: ".verification($layers[$fewest_zeroes]);
+				echo "<p>Day 8, Part I Answer: ".verification($layers[$fewest_zeroes])."</p>";
+
+				echo "<p>Day 8, Part II Answer:</p>";
+
+				// Formulate Final Image
+				$output_string = [];
+				foreach($layers AS $layer){
+					foreach(str_split($layer->image) AS $pIndex => $pixel){
+						// If not set, we know we can put any pixel there
+						if(!isset($output_string[$pIndex])){
+							$output_string[] = $pixel;
+						}elseif($output_string[$pIndex] == 2){
+							// If it is set, and is transparent, we can overwrite pixel
+							$output_string[$pIndex] = $pixel;
+						}
+					}
+				}
 			?>
+				<table>
+					<tr>
+						<?php
+							foreach($output_string AS $pIndex => $pixel):
+									// Colouration options
+									switch($pixel){
+										case "0":
+											$class = "black";
+										break;
+
+										case "1":
+											$class = "white";
+										break;
+
+										case "2":
+											$class = "transparent";
+										break;
+									}
+
+									// New line on meeting max width
+									if($pIndex > 0 && $pIndex % $width == 0):
+										?>
+											</tr>
+											<tr>
+										<?php
+									endif;
+
+								?>
+									<td class="<?=$class;?>">
+									</td>
+								<?php
+							endforeach;
+						?>
+					</tr>
+				</table>
 		</div>
 	</div>
 
