@@ -56,51 +56,55 @@
 		<div class="small-12 columns">
 
 			<?php
-				foreach($chars AS $index => $char):
+				if(!empty($chars)){
+					foreach($chars AS $index => $char){
 
-					if($index % ($width * $height) == 0){
+						if($index % ($width * $height) == 0){
+							/*
+							//Image visual - cut out for processing speed
+							if(!empty($layer->image)){
+								$layer->image = "\n".$layer->image;
+							}
+							*/
+
+							// Reset object if maximum characters reached.
+							$layer = new Layer();
+							$layers[] = $layer;
+						}
+
+						$layer->image .= $char;
+
 						/*
 						//Image visual - cut out for processing speed
-						if(!empty($layer->image)){
-							$layer->image = "\n".$layer->image;
+						$layer->image .= $char;
+						if(strlen(str_replace("\n", "", $layer->image)) % $width == 0){
+							$layer->image .= "\n";
 						}
 						*/
 
-						// Reset object if maximum characters reached.
-						$layer = new Layer();
-						$layers[] = $layer;
+						// Obtain character counts
+						switch($char){
+							case "0":
+								$layers[count($layers) - 1]->zeroes++;
+							break;
+
+							case "1":
+								$layers[count($layers) - 1]->ones++;
+							break;
+
+							case "2":
+								$layers[count($layers) - 1]->twos++;
+							break;
+						}
 					}
-
-					$layer->image .= $char;
-
-					/*
-					//Image visual - cut out for processing speed
-					$layer->image .= $char;
-					if(strlen(str_replace("\n", "", $layer->image)) % $width == 0){
-						$layer->image .= "\n";
-					}
-					*/
-
-					// Obtain character counts
-					switch($char){
-						case "0":
-							$layers[count($layers) - 1]->zeroes++;
-						break;
-
-						case "1":
-							$layers[count($layers) - 1]->ones++;
-						break;
-
-						case "2":
-							$layers[count($layers) - 1]->twos++;
-						break;
-					}
-				endforeach;
+				}
 
 				$fewest_zeroes = NULL;
-				foreach($layers AS $index => $layer){
-					if(empty($fewest_zeroes) || $layer->zeroes < $layers[$fewest_zeroes]->zeroes){
-						$fewest_zeroes = $index;
+				if(!empty($layers)){
+					foreach($layers AS $index => $layer){
+						if(empty($fewest_zeroes) || $layer->zeroes < $layers[$fewest_zeroes]->zeroes){
+							$fewest_zeroes = $index;
+						}
 					}
 				}
 
@@ -110,14 +114,18 @@
 
 				// Formulate Final Image
 				$output_string = [];
-				foreach($layers AS $layer){
-					foreach(str_split($layer->image) AS $pIndex => $pixel){
-						// If not set, we know we can put any pixel there
-						if(!isset($output_string[$pIndex])){
-							$output_string[] = $pixel;
-						}elseif($output_string[$pIndex] == 2){
-							// If it is set, and is transparent, we can overwrite pixel
-							$output_string[$pIndex] = $pixel;
+				if(!empty($layers)){
+					foreach($layers AS $layer){
+						if(!empty(str_split($layer->image))){
+							foreach(str_split($layer->image) AS $pIndex => $pixel){
+								// If not set, we know we can put any pixel there
+								if(!isset($output_string[$pIndex])){
+									$output_string[] = $pixel;
+								}elseif($output_string[$pIndex] == 2){
+									// If it is set, and is transparent, we can overwrite pixel
+									$output_string[$pIndex] = $pixel;
+								}
+							}
 						}
 					}
 				}
@@ -125,35 +133,37 @@
 				<table>
 					<tr>
 						<?php
-							foreach($output_string AS $pIndex => $pixel):
-									// Colouration options
-									switch($pixel){
-										case "0":
-											$class = "black";
-										break;
+							if(!empty($output_string)):
+								foreach($output_string AS $pIndex => $pixel):
+										// Colouration options
+										switch($pixel){
+											case "0":
+												$class = "black";
+											break;
 
-										case "1":
-											$class = "white";
-										break;
+											case "1":
+												$class = "white";
+											break;
 
-										case "2":
-											$class = "transparent";
-										break;
-									}
+											case "2":
+												$class = "transparent";
+											break;
+										}
 
-									// New line on meeting max width
-									if($pIndex > 0 && $pIndex % $width == 0):
-										?>
-											</tr>
-											<tr>
-										<?php
-									endif;
+										// New line on meeting max width
+										if($pIndex > 0 && $pIndex % $width == 0):
+											?>
+												</tr>
+												<tr>
+											<?php
+										endif;
 
-								?>
-									<td class="<?=$class;?>">
-									</td>
-								<?php
-							endforeach;
+									?>
+										<td class="<?=$class;?>">
+										</td>
+									<?php
+								endforeach;
+							endif;
 						?>
 					</tr>
 				</table>
